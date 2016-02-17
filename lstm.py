@@ -44,14 +44,35 @@ def runModel(inMatrix, model):
 def trainModel(inMatrix, targMatrix):
 	assert inMatrix.shape[:-1] == targMatrix.shape[:-1]
 	
-	targMatrix = targMatrix[:,:,:1]
-	
 	# Compile model
 	print("Compiling Model...")
-	
 	model = Sequential()
-	model.add(GRU(input_dim=inMatrix.shape[2], output_dim=inMatrix.shape[2]/2, return_sequences=True))
-	model.add(TimeDistributedDense(input_dim=inMatrix.shape[2]/2, output_dim=targMatrix.shape[2]))
+	model.add(LSTM(input_dim=256, output_dim=256, return_sequences=True))
+	model.add(Dropout(0.5))
+	model.add(LSTM(input_dim=256, output_dim=256, return_sequences=True))
+	model.add(Dropout(0.5))
+	model.add(LSTM(input_dim=256, output_dim=256, return_sequences=True))
+	model.add(Dropout(0.5))
+	model.add(LSTM(input_dim=256, output_dim=256, return_sequences=True))
+	model.add(Dropout(0.5))
+	model.add(LSTM(input_dim=256, output_dim=256, return_sequences=True))
+	model.add(Dropout(0.5))
+	model.add(LSTM(input_dim=256, output_dim=256, return_sequences=True))
+	model.add(Dropout(0.5))
+	model.add(LSTM(input_dim=256, output_dim=256, return_sequences=True))
+	model.add(Dropout(0.5))
+	model.add(LSTM(input_dim=256, output_dim=256, return_sequences=True))
+	model.add(Dropout(0.5))
+	model.add(LSTM(input_dim=256, output_dim=128, return_sequences=True))
+	model.add(Dropout(0.5))
+	model.add(LSTM(input_dim=128, output_dim=64, return_sequences=True))
+	model.add(Dropout(0.4))
+	model.add(LSTM(input_dim=64, output_dim=32, return_sequences=True))
+	model.add(Dropout(0.2))
+	model.add(LSTM(input_dim=32, output_dim=8, return_sequences=True))
+	model.add(Dropout(0.1))
+	model.add(TimeDistributedDense(input_dim=8, output_dim=targMatrix.shape[2]))
+	model.add(Activation('hard_sigmoid'))
 	model.compile(loss='mse', optimizer='adam')
 	
 	# Train model

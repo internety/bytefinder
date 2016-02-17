@@ -50,9 +50,11 @@ def readfiles():
 	inMatrix = np.concatenate(inMatrix, axis=0)
 	targMatrix = np.concatenate(targMatrix, axis=0)
 	
-	# Shuffle matrices
-	p = np.random.permutation(inMatrix.shape[0])
-	return (inMatrix[p], targMatrix[p])
+	print inMatrix.shape
+	print targMatrix.shape
+	
+	#p = np.random.permutation(600)
+	return (inMatrix, targMatrix)
 
 #Main
 def main():
@@ -65,10 +67,9 @@ def main():
 		model = lstm.loadModel('')
 		
 	# Backtest model
-	for f in getfiles():
-		print 'Opening ' + f[0] + '...'
-		fmat = loadfile(f[0])
-		result = lstm.runModel(fmat, model)
+	for i in xrange(inMatrix.shape[0]):
+		print 'Target: ' + str(targMatrix[i,0])
+		result = lstm.runModel(np.expand_dims(inMatrix[i], axis=0), model)
 		print np.mean(result, axis=1)
 		print np.max(result, axis=1)
 		print np.min(result, axis=1)
