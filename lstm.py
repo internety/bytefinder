@@ -37,20 +37,18 @@ def runModel(inMatrix, model):
 	return model.predict(inMatrix)
 
 
-def trainEncoder(inMatrix, outMatrix):
+def trainEncoder(inMatrix):
 
 	print("Compiling Encoder...")
 	inSize = inMatrix.shape[2]
-	encoder = containers.Sequential([LSTM(output_dim=128, input_dim = 256, return_sequences=True), \
-                                     LSTM(output_dim=64, input_dim = 128, return_sequences=True), \, \
-                                     LSTM(output_dim=32, input_dim = 64, return_sequences=True)
-                                     LSTM(output_dim=8, input_dim = 32, return_sequences=True), \
-                                     LSTM(output_dim=2, input_dim = 8, return_sequences=True)])
-	decoder = containers.Sequential([LSTM(output_dim=8, input_dim = 2, return_sequences=True), \
-	                                 LSTM(output_dim=32, input_dim = 8, return_sequences=True), \
-	                                 LSTM(output_dim=64, input_dim = 32, return_sequences=True), \
-                                     LSTM(output_dim=128, input_dim = 64, return_sequences=True), \
-                                     LSTM(output_dim=256, input_dim = 128, return_sequences=True)])
+	encoder = containers.Sequential([LSTM(output_dim=inSize/2, input_dim = inSize, return_sequences=True), \
+                                     LSTM(output_dim=inSize/4, input_dim = inSize/2, return_sequences=True), \
+                                     LSTM(output_dim=inSize/8, input_dim = inSize/4, return_sequences=True), \
+                                     LSTM(output_dim=inSize/16, input_dim = inSize/8, return_sequences=True)])
+	decoder = containers.Sequential([LSTM(output_dim=inSize/8, input_dim = inSize/16, return_sequences=True), \
+	                                 LSTM(output_dim=inSize/4, input_dim = inSize/8, return_sequences=True), \
+	                                 LSTM(output_dim=inSize/2, input_dim = inSize/4, return_sequences=True), \
+                                     LSTM(output_dim=inSize, input_dim = inSize/2, return_sequences=True)])
 									 
 	autoencoder = AutoEncoder(encoder=encoder, decoder=decoder, output_reconstruction=True)
 	
@@ -73,10 +71,9 @@ def trainEncoder(inMatrix, outMatrix):
 def trainModel(inMatrix, targMatrix):
 	assert inMatrix.shape[:-1] == targMatrix.shape[:-1]
 	
-	autoencoder = trainEncoder(inMatrix, outMatrix)
-	#inMatrix = autoencoder.predict(inMatrix)
+	autoencoder = trainEncoder(inMatrix)
+	inMatrix = autoencoder.predict(inMatrix)
 	
-	'''
 	# Compile model
 	print("Compiling Model...")
 	inSize, outSize = inMatrix.shape[2], targMatrix.shape[2]
@@ -103,6 +100,6 @@ def trainModel(inMatrix, targMatrix):
 	
 	# Save model
 	print("Saving Model...")
-	saveModel(model)'''
+	saveModel(model)
 
 	return model
