@@ -33,7 +33,7 @@ def readfiles():
 
 	fsamps = 5			# Samples per file
 	nsamps = 1000		# Samples in total
-	window = 160
+	window = 100
 	
 	inMatrix, targMatrix = [], []				# Extract training data
 	for f in getfiles()[:nsamps//fsamps]:
