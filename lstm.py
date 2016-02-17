@@ -42,8 +42,11 @@ def trainEncoder(inMatrix):
 	print("Compiling Encoder...")
 	inSize = inMatrix.shape[2]
 	encoder = containers.Sequential([LSTM(output_dim=inSize/2, input_dim = inSize, return_sequences=True), \
+	                                 Dropout(0.8), \
                                      LSTM(output_dim=inSize/4, input_dim = inSize/2, return_sequences=True), \
+                                     Dropout(0.4), \
                                      LSTM(output_dim=inSize/8, input_dim = inSize/4, return_sequences=True), \
+                                     Dropout(0.2), \
                                      LSTM(output_dim=inSize/16, input_dim = inSize/8, return_sequences=True)])
 	decoder = containers.Sequential([LSTM(output_dim=inSize/8, input_dim = inSize/16, return_sequences=True), \
 	                                 LSTM(output_dim=inSize/4, input_dim = inSize/8, return_sequences=True), \
@@ -59,7 +62,7 @@ def trainEncoder(inMatrix):
 	# Train model
 	print("Training Encoder...")
 	early_stopping = EarlyStopping(monitor='val_loss', patience=1)
-	model.fit(inMatrix, inMatrix, batch_size=inMatrix.shape[0]/20, validation_split=0.15, callbacks=[early_stopping], verbose=1)
+	model.fit(inMatrix, inMatrix, batch_size=30, validation_split=0.15, callbacks=[early_stopping], verbose=1)
 
 	autoencoder.output_reconstruction = False
 	return model
@@ -71,6 +74,8 @@ def trainEncoder(inMatrix):
 def trainModel(inMatrix, targMatrix):
 	assert inMatrix.shape[:-1] == targMatrix.shape[:-1]
 	
+	targMatrix = targMatrix[:,:,:1]
+	
 	autoencoder = trainEncoder(inMatrix)
 	inMatrix = autoencoder.predict(inMatrix)
 	
@@ -79,24 +84,15 @@ def trainModel(inMatrix, targMatrix):
 	inSize, outSize = inMatrix.shape[2], targMatrix.shape[2]
 	
 	model = Sequential()
-	model.add(LSTM(output_dim=inSize//1.25, input_dim=inSize, return_sequences=True))
-	model.add(Dropout(0.8))
-	model.add(LSTM(output_dim=inSize//2.5, input_dim=inSize//1.25, return_sequences=True))
-	model.add(Dropout(0.4))
-	model.add(LSTM(output_dim=inSize/3.75, input_dim=inSize//2.5, return_sequences=True))
-	model.add(Dropout(0.2))
-	model.add(LSTM(output_dim=inSize/5, input_dim=inSize//3.75, return_sequences=True))
-	model.add(Dropout(0.1))
-	model.add(LSTM(output_dim=outSize, input_dim=inSize//5, return_sequences=True))
-	model.add(TimeDistributedDense(outSize))
-	model.add(Activation("hard_sigmoid"))
+	model.add(LSTM(output_dim=inSize//3, input_dim=inSize, return_sequences=True))
+	model.add(LSTM(output_dim=outSize, input_dim=inSize//3, return_sequences=True))
 	
 	model.compile(loss="mse", optimizer="rmsprop")
 	
 	# Train model
 	print("Training Model...")
 	early_stopping = EarlyStopping(monitor='val_loss', patience=1)
-	model.fit(inMatrix, targMatrix, batch_size=inMatrix.shape[0]/20, validation_split=0.15, callbacks=[early_stopping], verbose=1)
+	model.fit(inMatrix, targMatrix, batch_size=30, validation_split=0.15, callbacks=[early_stopping], verbose=1)
 	
 	# Save model
 	print("Saving Model...")

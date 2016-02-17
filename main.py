@@ -32,7 +32,7 @@ def getfiles():
 def readfiles():
 
 	fsamps = 5			# Samples per file
-	nsamps = 100		# Samples in total
+	nsamps = 1000		# Samples in total
 	window = 160
 	
 	inMatrix, targMatrix = [], []				# Extract training data
