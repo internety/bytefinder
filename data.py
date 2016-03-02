@@ -20,8 +20,8 @@ def getfiles():
 
 def readfiles():
 
-	fsamps = 500			# Samples per file
-	window = 300
+	fsamps = 100			# Samples per file
+	window = 160
 	
 	inMatrix, targMatrix = [], []				# Extract training data
 	for f in getfiles():
@@ -38,7 +38,6 @@ def readfiles():
 			tmat = np.tile(f[1], (fmat.shape[0], 1))
 			targMatrix.append(tmat)
 	
-	# Turn lists into matrices (online concatenation is slow)
 	inMatrix = np.concatenate(inMatrix, axis=0)
 	targMatrix = np.concatenate(targMatrix, axis=0)
 	
