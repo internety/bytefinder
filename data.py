@@ -1,32 +1,37 @@
 import csv, random
 import numpy as np
 
+
+def readstr(s):
+	fmat = np.fromstring(s, dtype=np.dtype('uint8'))
+	result = np.zeros((fmat.size, 256))
+	result[np.arange(fmat.size), fmat] = 1
+	return np.expand_dims(result, axis=0)
+
 # File I/O
-def loadfile(fname):
-	bits = 8
+def readfile(fname):
+	print "Reading %s..." % fname
 	try:
-		fmat = np.fromfile(fname, dtype=np.dtype('uint%s' % bits))
-		result = np.zeros((fmat.size, 2**bits))
-		result[np.arange(fmat.size), fmat] = 1
-		return np.expand_dims(result, axis=0)
+		with open(fname) as f:
+			s = f.read()
+			return readstr(s)
 	except IOError:
 		return np.empty((0,0,0))
 
-def getfiles():
-	with open('classes.csv', 'rb') as csvfile:
-		flist = list(csv.reader(csvfile, delimiter=',', quotechar='"'))[1:]
-	random.shuffle(flist)
-	return [(x[0], np.array(x[1:], dtype=float)) for x in flist]
-
 def readfiles():
-
-	fsamps = 100			# Samples per file
-	window = 160
 	
-	inMatrix, targMatrix = [], []				# Extract training data
-	for f in getfiles():
-		print f[0]
-		fmat = loadfile(f[0])					# Load file
+	with open('classes.csv', 'rb') as csvfile:
+		csvlist = list(csv.reader(csvfile, delimiter=',', quotechar='"'))
+		flist = csvlist[1:]
+		classes = csvlist[0][1:]
+	random.shuffle(flist)
+	files = [(x[0], np.array(x[1:], dtype=float)) for x in flist]
+
+	fsamps = 500 # Samples per file
+	window = 160 # Timesteps per sample
+	inMatrix, targMatrix = [], []
+	for f in files:
+		fmat = readfile(f[0])
 		if fmat.shape[1] > window:
 			result = []
 			for x in xrange(fsamps):
@@ -34,7 +39,6 @@ def readfiles():
 				result.append(fmat[:, i:i+window])
 			fmat = np.concatenate(result, axis=0)
 			inMatrix.append(fmat)
-			
 			tmat = np.tile(f[1], (fmat.shape[0], 1))
 			targMatrix.append(tmat)
 	
