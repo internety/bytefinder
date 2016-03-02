@@ -5,12 +5,10 @@ import modeler
 import data
 
 def main():
-	'''
-	input, target, classes = data.readfiles()
-	model = modeler.train(input, target)'''
 
-	model = modeler.load('1456942498')
-	classes = ['bible', 'huck']
+	input, target, classes = data.readfiles()
+	model = modeler.train(input, target)
+
 	test = raw_input('\nEnter text (enter to cancel): ')
 	while test:
 		m = data.readstr(test)

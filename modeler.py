@@ -12,10 +12,6 @@ import theano
 theano.config.mode = 'FAST_RUN'
 theano.config.floatX = 'float32'
 
-#
-# Model I/O
-#
-
 # Save model
 def save(model):
 	t = int(time.time())
@@ -33,10 +29,7 @@ def load(name):
 def run(inMatrix, model):
 	return model.predict(inMatrix)
 
-#
 # Train model
-#
-
 def train(inMatrix, targMatrix):
 
 	print("Compiling Model...")
