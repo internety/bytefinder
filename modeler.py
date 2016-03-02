@@ -1,16 +1,12 @@
 import time
 
 from keras.models import Sequential, model_from_json
-from keras.layers import containers
-from keras.layers.core import TimeDistributedDense, Activation, Dropout, AutoEncoder, Dense
-from keras.layers.embeddings import Embedding
-from keras.layers.recurrent import GRU, LSTM
+from keras.layers.core import Activation, Dropout, Dense
+from keras.layers.recurrent import LSTM
 from keras.callbacks import EarlyStopping
 
 import numpy as np
 np.random.seed(1)
-
-import matplotlib.pyplot as plt
 
 import theano
 theano.config.mode = 'FAST_RUN'
