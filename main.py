@@ -1,79 +1,23 @@
 import csv, random
 import numpy as np
 
-import lstm
-
-# File I/O
-def loadfile(fname):
-	bits = 8
-	try:
-		fmat = np.fromfile(fname, dtype=np.dtype('uint%s' % bits))
-		result = np.zeros((fmat.size, 2**bits))
-		result[np.arange(fmat.size), fmat] = 1
-		return np.expand_dims(result, axis=0)
-	except IOError:
-		return np.empty((0,0,0))
-	
-# Data preparation
-def sample(mat, w=100, n=5):
-	assert mat.shape[1] > w
-	result = []
-	for x in xrange(n):
-		i = random.randint(0, mat.shape[1]-w)
-		result.append(mat[:, i:i+w])
-	return np.concatenate(result, axis=0)
-
-def getfiles():
-	with open('classes.csv', 'rb') as csvfile:
-		flist = list(csv.reader(csvfile, delimiter=',', quotechar='"'))[1:]
-	random.shuffle(flist)
-	return [(x[0], np.array(x[1:], dtype=float)) for x in flist]
-
-def readfiles():
-
-	fsamps = 5			# Samples per file
-	nsamps = 1000		# Samples in total
-	window = 100
-	
-	inMatrix, targMatrix = [], []				# Extract training data
-	for f in getfiles()[:nsamps//fsamps]:
-		print f[0]
-		fmat = loadfile(f[0])					# Load file
-		if fmat.shape[1] > window:
-			fmat = sample(fmat, window, fsamps)	# Sample
-			inMatrix.append(fmat)
-			
-			tmat = np.tile(f[1], (fmat.shape[0], fmat.shape[1], 1))
-			targMatrix.append(tmat)
-	
-	# Turn lists into matrices (online concatenation is slow)
-	inMatrix = np.concatenate(inMatrix, axis=0)
-	targMatrix = np.concatenate(targMatrix, axis=0)
-	
-	print inMatrix.shape
-	print targMatrix.shape
-	
-	#p = np.random.permutation(600)
-	return (inMatrix, targMatrix)
+import modeler
+import data
 
 #Main
 def main():
 
-	# Get model, either through training or loading
-	if True:
-		inMatrix, targMatrix = readfiles()
-		model = lstm.trainModel(inMatrix, targMatrix)
-	else:
-		model = lstm.loadModel('')
-		
-	# Backtest model
-	for i in xrange(inMatrix.shape[0]):
-		print 'Target: ' + str(targMatrix[i,0])
-		result = lstm.runModel(np.expand_dims(inMatrix[i], axis=0), model)
-		print np.mean(result, axis=1)
-		print np.max(result, axis=1)
-		print np.min(result, axis=1)
-		print
+	#input = np.concatenate((np.ones((1000, 100, 256)),np.zeros((1000, 100, 256))), axis=0)
+	#target = np.concatenate((np.ones((1000, 1)),np.zeros((1000, 1))), axis=0)
+	input, target = data.readfiles()
+	print input.shape
+	print target.shape
+	model = modeler.train(input, target)
+	#model = modeler.load('1456868768')
+	for i in xrange(input.shape[0]):
+		print 'Target: ' + str(target[i])
+		result = modeler.run(np.expand_dims(input[i], axis=0), model)
+		print result
 
 if __name__ == "__main__":
 	main()
