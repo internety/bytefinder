@@ -46,4 +46,4 @@ def readfiles():
 	targMatrix = np.concatenate(targMatrix, axis=0)
 	
 	p = np.random.permutation(inMatrix.shape[0])
-	return (inMatrix[p], targMatrix[p])
+	return (inMatrix[p], targMatrix[p], classes)
