@@ -1,21 +1,26 @@
-import csv, random
-import numpy as np
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import print_function
 
+# Standard Libraries
+import random
+
+# Local Libraries
 import modeler
 import data
 
-def main():
+###############################################################################
 
-	input, target, classes = data.readfiles()
+def main():
+	input, target = data.sample('data')
 	model = modeler.train(input, target)
 
-	test = raw_input('\nEnter text (enter to cancel): ')
+	test = raw_input('\nInput text (enter to cancel): ')
 	while test:
-		m = data.readstr(test)
+		m = data.makeMatrix([test])
 		result = modeler.run(m, model)
-		for i in xrange(len(classes)):
-			print '%s:\t%s%%' % (classes[i], round(result[0,i]*100,2))
-		test = raw_input('\nEnter text (enter to cancel): ')
+		print(result)
+		test = raw_input('\nInput text (enter to cancel): ')
 
 if __name__ == "__main__":
 	main()

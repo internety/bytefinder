@@ -1,16 +1,24 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+from __future__ import print_function
+
+# Standard Libraries
 import time
 
-from keras.models import Sequential, model_from_json
-from keras.layers.core import Activation, Dropout, Dense
-from keras.layers.recurrent import LSTM
-from keras.callbacks import EarlyStopping
-
+# Third-party Libraries
 import numpy as np
 np.random.seed(1)
 
 import theano
 theano.config.mode = 'FAST_RUN'
 theano.config.floatX = 'float32'
+
+from keras.models import Sequential, model_from_json
+from keras.layers.core import Activation, Dropout, Dense
+from keras.layers.recurrent import LSTM
+from keras.callbacks import EarlyStopping
+
+###############################################################################
 
 # Save model
 def save(model):
@@ -36,7 +44,7 @@ def train(inMatrix, targMatrix):
 	model = Sequential()
 	model.add(LSTM(input_dim=inMatrix.shape[2], output_dim=4, return_sequences=False))
 	model.add(Dropout(0.5))
-	model.add(Dense(input_dim=1, output_dim=targMatrix.shape[1]))
+	model.add(Dense(input_dim=4, output_dim=targMatrix.shape[1]))
 	model.add(Activation('softmax'))
 	model.compile(loss='mean_squared_error', optimizer='rmsprop')
 	print("Training Model...")
