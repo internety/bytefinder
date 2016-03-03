@@ -13,14 +13,15 @@ import data
 
 def test(model, classes):
 	d = 'data/test'
-	with open('data/log.csv', 'a+') as log:
+	with open('log.csv', 'a+') as log:
 		for file in os.listdir(d):
-			with open(d + '/' + file) as f:
-				s = f.read()
-				result = modeler.run(data.preprocess(s, min(500, len(s))), model)
-				log.write(file+'\n')
-				for i in xrange(len(classes)):
-					log.write('\t%s:\t%s\n' % (classes[i], result[0,i]))
+			if not file.startswith('.'):
+				with open(d + '/' + file) as f:
+					s = f.read()
+					result = modeler.run(data.preprocess(s, min(500, len(s))), model)
+					log.write(file+'\n')
+					for i in xrange(len(classes)):
+						log.write('\t%s:\t%s\n' % (classes[i], result[0,i]))
 
 
 def main():

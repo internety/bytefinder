@@ -49,11 +49,9 @@ def train(inMatrix, targMatrix):
 
 	print("Compiling Model...")
 	model = Sequential()
-	model.add(LSTM(input_dim=inMatrix.shape[2], output_dim=4, return_sequences=True))
+	model.add(LSTM(input_dim=inMatrix.shape[2], output_dim=4, return_sequences=False))
 	model.add(Dropout(0.5))
-	model.add(LSTM(input_dim=4, output_dim=targMatrix.shape[1], return_sequences=False))
-	model.add(Dropout(0.5))
-	model.add(Dense(input_dim=targMatrix.shape[1], output_dim=targMatrix.shape[1]))
+	model.add(Dense(input_dim=4, output_dim=targMatrix.shape[1]))
 	model.add(Activation('softmax'))
 	model.compile(loss='mean_squared_error', optimizer='rmsprop')
 	print("Training Model...")

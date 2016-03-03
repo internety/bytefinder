@@ -14,29 +14,24 @@ import numpy as np
 def preprocess(fstring, window=100):
 
 	i = random.randint(0, len(fstring)-window)
-	fstring = fstring[i:i+window]
-	
-	fmat = np.fromstring(fstring, dtype=np.dtype('uint8'))
+	fmat = np.fromstring(fstring[i:i+window], dtype=np.dtype('uint8'))
 	result = np.zeros((1, fmat.size, 256))
 	result[0, np.arange(fmat.size), fmat] = 1
-
 	return result
 
 # 
 def sample(dname):
-	ncat = 100		# Files per category
-	fsamps = 5 		# Samples per file
-	window = 160 	# Timesteps per sample
+	ncat = 4000		# Files per category
+	fsamps = 1 		# Samples per file
+	window = 100 	# Timesteps per sample
 
 	inList, targList, classes = [], [], []
-
 	classes = [root[root.rindex('/')+1:] for root, dirs, files in os.walk(dname) if [x for x in files if not x.startswith('.')]]
-
 	for root, dirs, files in os.walk(dname):
 			print('Opening %s...' % root)
-
 			target = np.zeros(len(classes))
 			target[[classes.index(x) for x in root.split('/')[1:] if x in classes]] = 1
+			random.shuffle(files)
 			for fname in files[:ncat]:
 				try:
 					with open(root+'/'+fname) as f:
@@ -47,7 +42,6 @@ def sample(dname):
 								for _ in xrange(fsamps):
 									inList.append(preprocess(fstring, window))
 									targList.append(target)
-							
 				except IOError:
 					print("\tCould not read %s..." % fname)
 
