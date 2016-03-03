@@ -23,7 +23,7 @@ def preprocess(fstring, window=100):
 def sample(dname):
 	ncat = 4000		# Files per category
 	fsamps = 1 		# Samples per file
-	window = 100 	# Timesteps per sample
+	window = 200 	# Timesteps per sample
 
 	inList, targList, classes = [], [], []
 	classes = [root[root.rindex('/')+1:] for root, dirs, files in os.walk(dname) if [x for x in files if not x.startswith('.')]]
@@ -36,7 +36,7 @@ def sample(dname):
 				try:
 					with open(root+'/'+fname) as f:
 						if not fname.startswith('.'):
-							print("\tReading %s..." % fname)
+							print("\tReading %s..." % fname[:40])
 							fstring = f.read()
 							if len(fstring) > window:
 								for _ in xrange(fsamps):

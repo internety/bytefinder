@@ -11,33 +11,29 @@ import data
 
 ###############################################################################
 
-def test(model, classes):
-	d = 'data/test'
+def test(model, classes, d):
 	with open('log.csv', 'a+') as log:
 		for file in os.listdir(d):
 			if not file.startswith('.'):
 				with open(d + '/' + file) as f:
 					s = f.read()
-					result = modeler.run(data.preprocess(s, min(500, len(s))), model)
-					log.write(file+'\n')
+					result = modeler.run(data.preprocess(s, min(2000, len(s))), model)
+					log.write('\n'+file+'\t')
 					for i in xrange(len(classes)):
-						log.write('\t%s:\t%s\n' % (classes[i], result[0,i]))
+						log.write('%s\t' % result[0,i])
 
 
 def main():
 	
-	retrain = True
-
+	retrain = False
 	if retrain:
-		input, target, classes = data.sample('data/train')
+		input, target, classes = data.sample('data')
 		model = modeler.train(input, target)
 		modeler.save(model, classes)
-
 	else:
 		model, classes = modeler.load(sorted(os.listdir('models'))[-1])
 
-	test(model, classes)
-	
+	test(model, classes, 'data/good')
 
 if __name__ == "__main__":
 	main()
