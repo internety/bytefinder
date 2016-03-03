@@ -10,30 +10,33 @@ import numpy as np
 
 ###############################################################################
 
-def makeMatrix(string_list):
-	result = []
-	for s in string_list:
-		fmat = np.fromstring(s, dtype=np.dtype('uint8'))
-		one_hot = np.zeros((fmat.size, 256))
-		one_hot[np.arange(fmat.size), fmat] = 1
-		result.append(one_hot)
-	return np.array(result)
+# Given a file string 'fstring', string is selected (eg. in sentences) with length 'window'
+def preprocess(fstring, window=100):
 
+	i = random.randint(0, len(fstring)-window)
+	fstring = fstring[i:i+window]
+	
+	fmat = np.fromstring(fstring, dtype=np.dtype('uint8'))
+	result = np.zeros((1, fmat.size, 256))
+	result[0, np.arange(fmat.size), fmat] = 1
+
+	return result
+
+# 
 def sample(dname):
-	ncat = 100
-	fsamps = 5 # Samples per file
-	window = 160 # Timesteps per sample
+	ncat = 100		# Files per category
+	fsamps = 5 		# Samples per file
+	window = 160 	# Timesteps per sample
 
-	inList, targList = [], []
-	classes = list(set('/'.join([x[0] for x in os.walk(dname)]).split('/')))
-	classes.remove(dname)
+	inList, targList, classes = [], [], []
+
+	classes = [root[root.rindex('/')+1:] for root, dirs, files in os.walk(dname) if [x for x in files if not x.startswith('.')]]
 
 	for root, dirs, files in os.walk(dname):
-		
-		if root != dname:
-			print("Opening %s..." % root)
+			print('Opening %s...' % root)
+
 			target = np.zeros(len(classes))
-			target[[classes.index(x) for x in root.split('/')[1:]]] = 1
+			target[[classes.index(x) for x in root.split('/')[1:] if x in classes]] = 1
 			for fname in files[:ncat]:
 				try:
 					with open(root+'/'+fname) as f:
@@ -42,18 +45,18 @@ def sample(dname):
 							fstring = f.read()
 							if len(fstring) > window:
 								for _ in xrange(fsamps):
-									i = random.randint(0, len(fstring)-window)
-									inList.append(fstring[i:i+window])
+									inList.append(preprocess(fstring, window))
 									targList.append(target)
+							
 				except IOError:
 					print("\tCould not read %s..." % fname)
 
 	print("Making Matrix...")
-	inMatrix = makeMatrix(inList)
+	inMatrix = np.vstack(inList)
 	targMatrix = np.array(targList)
 
-	print("Input shape:\t(%s %s %s)" % inMatrix.shape)
-	print("Target shape:\t(%s %s)" % targMatrix.shape)
+	print(inMatrix.shape)
+	print(targMatrix.shape)
 	
 	p = np.random.permutation(inMatrix.shape[0])
-	return (inMatrix[p], targMatrix[p])
+	return (inMatrix[p], targMatrix[p], classes)
