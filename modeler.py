@@ -52,7 +52,7 @@ def train(inMatrix, targMatrix):
 	model.add(LSTM(input_dim=inMatrix.shape[2], output_dim=1, return_sequences=False))
 	model.add(Dense(input_dim=1, output_dim=targMatrix.shape[1]))
 	model.add(Activation('softmax'))
-	model.compile(loss='mean_squared_error', optimizer='rmsprop')
+	model.compile(loss='categorical_crossentropy', optimizer='adam')
 	print("Training Model...")
 	model.fit(inMatrix, targMatrix, batch_size=30, validation_split=0.15, callbacks=[EarlyStopping(monitor='val_loss', patience=3)], verbose=1)
 
