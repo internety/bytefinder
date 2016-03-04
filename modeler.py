@@ -15,7 +15,9 @@ theano.config.floatX = 'float32'
 
 from keras.models import Sequential, model_from_json
 from keras.layers.core import Activation, Dropout, Dense
+from keras.layers.noise import GaussianNoise
 from keras.layers.recurrent import LSTM
+from keras.layers.normalization import BatchNormalization
 from keras.callbacks import EarlyStopping
 
 ###############################################################################
@@ -49,8 +51,10 @@ def train(inMatrix, targMatrix):
 
 	print("Compiling Model...")
 	model = Sequential()
+	model.add(GaussianNoise(sigma=0.1, input_shape=inMatrix.shape[1:]))
 	model.add(LSTM(input_dim=inMatrix.shape[2], output_dim=1, return_sequences=False))
 	model.add(Dense(input_dim=1, output_dim=targMatrix.shape[1]))
+	model.add(BatchNormalization())
 	model.add(Activation('softmax'))
 	model.compile(loss='categorical_crossentropy', optimizer='adam')
 	print("Training Model...")
