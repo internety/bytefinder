@@ -18,6 +18,7 @@ from keras.layers.core import Activation, Dropout, Dense
 from keras.layers.noise import GaussianNoise
 from keras.layers.recurrent import LSTM
 from keras.layers.normalization import BatchNormalization
+from keras.layers.convolutional import Convolution1D
 from keras.callbacks import EarlyStopping
 
 ###############################################################################
@@ -46,21 +47,21 @@ def load(name):
 def run(inMatrix, model):
 	return model.predict(inMatrix)
 
-def build():
+def build(inShape, targShape):
+
+	print("Building Model...")
 	model = Sequential()
-	model.add(GaussianNoise(sigma=0.1, input_shape=inMatrix.shape[1:]))
-	model.add(LSTM(input_dim=inMatrix.shape[2], output_dim=1, return_sequences=False))
-	model.add(Dense(input_dim=1, output_dim=targMatrix.shape[1]))
+	model.add(GaussianNoise(sigma=0.1, input_shape=inShape[1:]))
+	model.add(LSTM(input_dim=30, output_dim=1, return_sequences=False))
+	model.add(Dense(input_dim=1, output_dim=targShape[1]))
 	model.add(BatchNormalization())
 	model.add(Activation('softmax'))
 	model.compile(loss='categorical_crossentropy', optimizer='adam')
-    return model
+	return model
 
 # Train model
-def train(inMatrix, targMatrix):
+def train(model, inMatrix, targMatrix):
 
-	print("Building Model...")
-	model = build()
 	print("Compiling Model...")
 	model.compile(loss='categorical_crossentropy', optimizer='adam')
 	print("Training Model...")

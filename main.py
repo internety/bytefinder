@@ -29,7 +29,8 @@ def main():
 	retrain = True
 	if retrain:
 		input, target, classes = data.sample('data')
-		model = modeler.train(input, target)
+		model = modeler.build(input.shape, target.shape)
+		modeler.train(model, input, target)
 		modeler.save(model, classes)
 	else:
 		model, classes = modeler.load(sorted(os.listdir('models'))[-1])
