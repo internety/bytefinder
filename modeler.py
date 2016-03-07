@@ -53,18 +53,16 @@ def build(inShape, targShape):
 	model = Sequential()
 	model.add(GaussianNoise(sigma=0.1, input_shape=inShape[1:]))
 	model.add(Convolution1D(nb_filter=30, filter_length=5, input_dim=inShape[2]))
-	model.add(LSTM(input_dim=30, output_dim=targShape[1]*2, return_sequences=True))
-	model.add(TimeDistributedMerge(mode='ave'))
-	model.add(Dense(targShape[1]))
+	model.add(LSTM(input_dim=30, output_dim=targShape[1], return_sequences=True))
 	model.add(BatchNormalization())
-	model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
+	model.add(TimeDistributedMerge(mode='ave'))
 	return model
 
 # Train model
 def train(model, inMatrix, targMatrix):
 
 	print("Compiling Model...")
-	model.compile(loss='categorical_crossentropy', optimizer='adam')
+	model.compile(loss='mse', optimizer='rmsprop')
 	print("Training Model...")
 	model.fit(inMatrix, targMatrix, batch_size=30, validation_split=0.15, callbacks=[EarlyStopping(monitor='val_loss', patience=3)], verbose=1)
 
