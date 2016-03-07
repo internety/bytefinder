@@ -46,16 +46,22 @@ def load(name):
 def run(inMatrix, model):
 	return model.predict(inMatrix)
 
-# Train model
-def train(inMatrix, targMatrix):
-
-	print("Compiling Model...")
+def build():
 	model = Sequential()
 	model.add(GaussianNoise(sigma=0.1, input_shape=inMatrix.shape[1:]))
 	model.add(LSTM(input_dim=inMatrix.shape[2], output_dim=1, return_sequences=False))
 	model.add(Dense(input_dim=1, output_dim=targMatrix.shape[1]))
 	model.add(BatchNormalization())
 	model.add(Activation('softmax'))
+	model.compile(loss='categorical_crossentropy', optimizer='adam')
+    return model
+
+# Train model
+def train(inMatrix, targMatrix):
+
+	print("Building Model...")
+	model = build()
+	print("Compiling Model...")
 	model.compile(loss='categorical_crossentropy', optimizer='adam')
 	print("Training Model...")
 	model.fit(inMatrix, targMatrix, batch_size=30, validation_split=0.15, callbacks=[EarlyStopping(monitor='val_loss', patience=3)], verbose=1)
