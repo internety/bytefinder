@@ -14,7 +14,7 @@ theano.config.mode = 'FAST_RUN'
 theano.config.floatX = 'float32'
 
 from keras.models import Sequential, model_from_json
-from keras.layers.core import Activation, Dropout, Dense
+from keras.layers.core import Activation, Dropout, Dense, TimeDistributedMerge, TimeDistributedDense
 from keras.layers.noise import GaussianNoise
 from keras.layers.recurrent import LSTM
 from keras.layers.normalization import BatchNormalization
@@ -52,11 +52,12 @@ def build(inShape, targShape):
 	print("Building Model...")
 	model = Sequential()
 	model.add(GaussianNoise(sigma=0.1, input_shape=inShape[1:]))
-	model.add(LSTM(input_dim=30, output_dim=1, return_sequences=False))
-	model.add(Dense(input_dim=1, output_dim=targShape[1]))
+	model.add(Convolution1D(nb_filter=30, filter_length=5, input_dim=inShape[2]))
+	model.add(LSTM(input_dim=30, output_dim=targShape[1]*2, return_sequences=True))
+	model.add(TimeDistributedMerge(mode='ave'))
+	model.add(Dense(targShape[1]))
 	model.add(BatchNormalization())
-	model.add(Activation('softmax'))
-	model.compile(loss='categorical_crossentropy', optimizer='adam')
+	model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
 	return model
 
 # Train model
