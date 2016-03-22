@@ -37,17 +37,17 @@ def sample(dname):
 
 			# For file in each directory
 			for fname in files[:ncat]:
-				try:
-					with open(root+'/'+fname) as f:
-						if not fname.startswith('.'):
+				if not fname.startswith('.'):
+					try:
+						with open(root+'/'+fname) as f:
 							print("\tReading %s..." % fname[:40])
 							fstring = f.read()
 							if len(fstring) > window:
 								for _ in xrange(fsamps):
 									inList.append(preprocess(fstring, window))
 									targList.append(target)
-				except IOError:
-					print("\tCould not read %s..." % fname)
+					except IOError:
+						print("\tCould not read %s..." % fname)
 
 	print("Making Matrix...")
 	inMatrix = np.vstack(inList)
