@@ -10,32 +10,73 @@ import numpy as np
 
 ###############################################################################
 
-# Given a string 'fstring', substring is selected (eg. in sentences) with length 'window'
-def preprocess(fstring, window=100):
+class colors:
+    normal = '\033[0m'
+    bold = '\033[1m'
+    underline = '\033[4m'
+    blink_1 = '\033[5m'
+    blink_2 = '\033[6m'
+    fg_k = '\033[90m'
+    fg_r = '\033[91m'
+    fg_g = '\033[92m'
+    fg_y = '\033[93m'
+    fg_b = '\033[94m'
+    fg_m = '\033[95m'
+    fg_c = '\033[96m'
+    fg_w = '\033[97m'
+    bg_k = '\033[100m'
+    bg_r = '\033[101m'
+    bg_g = '\033[102m'
+    bg_y = '\033[103m'
+    bg_b = '\033[104m'
+    bg_m = '\033[105m'
+    bg_c = '\033[106m'
+    bg_w = '\033[107m'
 
-	i = random.randint(0, len(fstring)-window)
-	fmat = np.fromstring(fstring[i:i+window], dtype=np.dtype('uint8'))
-	result = np.zeros((1, fmat.size, 256))
-	result[0, np.arange(fmat.size), fmat] = 1
+def backtest(input, output):
+
+	cat_colors = [colors.fg_b, colors.fg_g, colors.fg_r]
+
+	# For each sequence in input
+	for sequence in xrange(input.shape[0]):
+
+		fstring = mat2str(input[sequence])
+		fcat = output[sequence]
+
+		# For each timestep in sequence
+		for timestep in xrange(len(fstring)):
+			char = fstring[timestep]
+			cat = fcat[timestep]
+			print(cat_colors[np.argmax(cat)] + char + colors.normal, end="")
+	return
+
+# Given a file string 's',
+# sample and output a numpy matrix with shape (1, len(s), 256)
+def str2mat(s):
+	smat = np.fromstring(s, dtype=np.dtype('uint8'))
+	result = np.zeros((1, smat.size, 256))
+	result[0, np.arange(smat.size), smat] = 1
 	return result
 
-# 
+def mat2str(smat):
+	return (np.where(smat)[-1]).tostring().replace('\x00','')
+
+# Sample a directory and all subdirectories
 def sample(dname):
 	ncat = 4000		# Files per category
 	fsamps = 1 		# Samples per file
 	window = 200 	# Timesteps per sample
 
 	inList, targList, classes = [], [], []
-	classes = [root[root.rindex('/')+1:] for root, dirs, files in os.walk(dname) if [x for x in files if not x.startswith('.')]]
+	classes = [root.split('/')[-1] for root, dirs, files in os.walk(dname) if '/' in root]
 
 	# For each sub-file/directory within dname
 	for root, dirs, files in os.walk(dname):
 			print('Opening %s...' % root)
-			target = np.zeros(len(classes))
-			target[[classes.index(x) for x in root.split('/')[1:] if x in classes]] = 1
-			random.shuffle(files)
+			target = np.tile([1 if x in root.split('/')[1:] else 0 for x in classes], (window, 1))
 
 			# For file in each directory
+			random.shuffle(files)
 			for fname in files[:ncat]:
 				if not fname.startswith('.'):
 					try:
@@ -44,17 +85,13 @@ def sample(dname):
 							fstring = f.read()
 							if len(fstring) > window:
 								for _ in xrange(fsamps):
-									inList.append(preprocess(fstring, window))
+									i = random.randint(0, len(fstring)-window)
+									inList.append(str2mat(fstring[i:i+window]))
 									targList.append(target)
 					except IOError:
 						print("\tCould not read %s..." % fname)
 
-	print("Making Matrix...")
-	inMatrix = np.vstack(inList)
-	targMatrix = np.array(targList)
+	inMatrix, targMatrix = np.vstack(inList), np.array(targList)
 
-	print(inMatrix.shape)
-	print(targMatrix.shape)
-	
 	p = np.random.permutation(inMatrix.shape[0])
 	return (inMatrix[p], targMatrix[p], classes)

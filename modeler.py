@@ -53,9 +53,9 @@ def build(inShape, targShape):
 	model = Sequential()
 	model.add(GaussianNoise(sigma=0.1, input_shape=inShape[1:]))
 	model.add(Convolution1D(nb_filter=30, filter_length=5, input_dim=inShape[2]))
-	model.add(LSTM(input_dim=30, output_dim=targShape[1], return_sequences=True))
+	model.add(LSTM(input_dim=30, output_dim=targShape[-1], return_sequences=True))
 	model.add(BatchNormalization())
-	model.add(TimeDistributedMerge(mode='ave'))
+	#model.add(TimeDistributedMerge(mode='ave'))
 	return model
 
 # Train model
