@@ -11,21 +11,7 @@ import data
 
 ###############################################################################
 
-def test(model, d):
-	print('Backtesting...')
-	with open('log.csv', 'a+') as log:
-		for file in os.listdir(d):
-			if not file.startswith('.'):
-				with open(d + '/' + file) as f:
-					s = f.read()
-					result = modeler.run(data.preprocess(s, min(2000, len(s))), model)
-					log.write('\n'+file+'\t')
-					for i in xrange(result.shape[1]):
-						log.write('%s\t' % result[0,i])
-
-
 def main():
-	
 	retrain = True
 	if retrain:
 		input, target, classes = data.sample('data')
@@ -35,7 +21,7 @@ def main():
 	else:
 		model, classes = modeler.load(sorted(os.listdir('models'))[-1])
 
-	test(model, 'data/good')
+	data.backtest(input, model.predict(target))
 
 if __name__ == "__main__":
 	main()
