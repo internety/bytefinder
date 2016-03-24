@@ -63,8 +63,8 @@ def mat2str(smat):
 
 # Sample a directory and all subdirectories
 def sample(dname):
-	ncat = 4000		# Files per category
-	fsamps = 1 		# Samples per file
+	ncat = 10		# Files per category
+	fsamps = 300 	# Samples per file
 	window = 200 	# Timesteps per sample
 
 	inList, targList, classes = [], [], []

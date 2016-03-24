@@ -9,12 +9,10 @@ import time, os
 import numpy as np
 np.random.seed(1)
 
-import theano
-theano.config.mode = 'FAST_RUN'
-theano.config.floatX = 'float32'
+import tensorflow
 
 from keras.models import Sequential, model_from_json
-from keras.layers.core import Activation, Dropout, Dense, TimeDistributedMerge, TimeDistributedDense
+from keras.layers.core import Activation, Dropout, Dense
 from keras.layers.noise import GaussianNoise
 from keras.layers.recurrent import LSTM
 from keras.layers.normalization import BatchNormalization
@@ -51,11 +49,7 @@ def build(inShape, targShape):
 
 	print("Building Model...")
 	model = Sequential()
-	model.add(GaussianNoise(sigma=0.1, input_shape=inShape[1:]))
-	model.add(Convolution1D(nb_filter=30, filter_length=5, input_dim=inShape[2]))
-	model.add(LSTM(input_dim=30, output_dim=targShape[-1], return_sequences=True))
-	model.add(BatchNormalization())
-	#model.add(TimeDistributedMerge(mode='ave'))
+	model.add(LSTM(input_shape=inShape[1:], output_dim=targShape[-1], return_sequences=True))
 	return model
 
 # Train model
