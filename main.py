@@ -24,7 +24,7 @@ def main():
 	else:
 		model, classes = modeler.load(sorted(os.listdir('models'))[-1])
 
-	data.backtest(input, model.predict(input))
+	data.backtest(input, model.predict({'input':input}))
 
 if __name__ == "__main__":
 	main()
