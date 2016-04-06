@@ -4,9 +4,11 @@ from __future__ import print_function
 
 # Standard Libraries
 import random, os
+random.seed(1)
 
 # Third-party Libraries
 import numpy as np
+np.random.seed(1)
 
 ###############################################################################
 
@@ -43,11 +45,13 @@ def backtest(input, output):
 		fstring = mat2str(input[sequence])
 		fcat = output[sequence]
 
+		print('-'*40)
 		# For each timestep in sequence
 		for timestep in xrange(len(fstring)):
 			char = fstring[timestep]
 			cat = fcat[timestep]
 			print(cat_colors[np.argmax(cat)] + char + colors.normal, end="")
+		print()
 	return
 
 # Given a file string 's',

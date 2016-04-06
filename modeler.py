@@ -42,8 +42,8 @@ def load(name):
 	return model, classes
 
 # Use model
-def run(inMatrix, model):
-	return model.predict(inMatrix)
+def run(model, inMatrix):
+	return model.predict({'input':inMatrix})['output']
 
 def build(inShape, targShape):
 
