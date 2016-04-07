@@ -28,7 +28,7 @@ def main():
 			model, classes = modeler.load(sorted(os.listdir('models'))[-1])
 	
 		output = modeler.run(model, input)
-		data.backtest(input, output)
+		data.backtest(classes, input, output)
 	else:
 		print("""\nNo data found.\nPut subfolders of files by class, within the 'data' folder.""")
 

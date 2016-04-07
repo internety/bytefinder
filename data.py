@@ -12,7 +12,6 @@ import numpy as np
 
 class colors:
 	normal = '\033[0m'
-	fg_k = '\033[90m'
 	fg_r = '\033[91m'
 	fg_g = '\033[92m'
 	fg_y = '\033[93m'
@@ -27,15 +26,19 @@ class colors:
 	bg_b = '\033[104m'
 	bg_m = '\033[105m'
 	bg_c = '\033[106m'
-	bg_w = '\033[107m'
 
-def backtest(input, output):
+def backtest(classes, input, output):
+
+	# Print classification labels
+	cat_colors = [colors.fg_r, colors.fg_g, colors.fg_y, colors.fg_b, colors.fg_m, colors.fg_c, colors.fg_w]
+	for i in xrange(len(classes)):
+		print(cat_colors[i] + classes[i] + colors.normal, end=' ')
+	print()
 
 	# For each sequence in input
 	for sequence in xrange(input.shape[0]):
 		
 		print('-'*40)
-		cat_colors = [colors.fg_b, colors.fg_g, colors.fg_r]
 		fstring = mat2str(input[sequence])
 		fcat = output[sequence]
 
@@ -43,7 +46,7 @@ def backtest(input, output):
 		for timestep in xrange(len(fstring)):
 			char = fstring[timestep]
 			cat = fcat[timestep]
-			print(cat_colors[np.argmax(cat)] + char + colors.normal, end="")
+			print(cat_colors[np.argmax(cat)] + char + colors.normal, end='')
 		print()
 	return
 
@@ -60,7 +63,7 @@ def mat2str(smat):
 
 # Sample a directory and all subdirectories
 def sample(dname):
-	ncat = 90		# Files per category
+	ncat = 5		# Files per category
 	fsamps = 10 	# Samples per file
 	window = 200 	# Timesteps per sample
 
