@@ -12,46 +12,16 @@ np.random.seed(1)
 
 ###############################################################################
 
-class colors:
-    normal = '\033[0m'
-    bold = '\033[1m'
-    underline = '\033[4m'
-    blink_1 = '\033[5m'
-    blink_2 = '\033[6m'
-    fg_k = '\033[90m'
-    fg_r = '\033[91m'
-    fg_g = '\033[92m'
-    fg_y = '\033[93m'
-    fg_b = '\033[94m'
-    fg_m = '\033[95m'
-    fg_c = '\033[96m'
-    fg_w = '\033[97m'
-    bg_k = '\033[100m'
-    bg_r = '\033[101m'
-    bg_g = '\033[102m'
-    bg_y = '\033[103m'
-    bg_b = '\033[104m'
-    bg_m = '\033[105m'
-    bg_c = '\033[106m'
-    bg_w = '\033[107m'
-
 def backtest(input, output):
-
-	cat_colors = [colors.fg_b, colors.fg_g, colors.fg_r]
 
 	# For each sequence in input
 	for sequence in xrange(input.shape[0]):
 
-		fstring = mat2str(input[sequence])
-		fcat = output[sequence]
-
 		print('-'*40)
-		# For each timestep in sequence
-		for timestep in xrange(len(fstring)):
-			char = fstring[timestep]
-			cat = fcat[timestep]
-			print(cat_colors[np.argmax(cat)] + char + colors.normal, end="")
-		print()
+		print(output[sequence])
+
+		fstring = mat2str(input[sequence])
+		print(fstring)
 	return
 
 # Given a file string 's',
@@ -67,8 +37,8 @@ def mat2str(smat):
 
 # Sample a directory and all subdirectories
 def sample(dname):
-	ncat = 10		# Files per category
-	fsamps = 300 	# Samples per file
+	ncat = 90		# Files per category
+	fsamps = 10 	# Samples per file
 	window = 200 	# Timesteps per sample
 
 	inList, targList, classes = [], [], []
@@ -77,7 +47,7 @@ def sample(dname):
 	# For each sub-file/directory within dname
 	for root, dirs, files in os.walk(dname):
 			print('Opening %s...' % root)
-			target = np.tile([1 if x in root.split('/')[1:] else 0 for x in classes], (window, 1))
+			target = np.array([1 if x in root.split('/')[1:] else 0 for x in classes])
 
 			# For file in each directory
 			random.shuffle(files)

@@ -51,8 +51,8 @@ def build(inShape, targShape):
 
 	model = Graph()
 	model.add_input(name='input', input_shape=inShape[1:])
-	model.add_node(LSTM(output_dim=targShape[-1],  return_sequences=True), name='forward', input='input')
-	model.add_node(LSTM(output_dim=targShape[-1],  return_sequences=True, go_backwards=True), name='backward', input='input')
+	model.add_node(LSTM(output_dim=targShape[-1],  return_sequences=False), name='forward', input='input')
+	model.add_node(LSTM(output_dim=targShape[-1],  return_sequences=False, go_backwards=True), name='backward', input='input')
 	model.add_output(name='output', inputs=['forward', 'backward'], merge_mode='ave')
 
 	#model = Sequential()
@@ -66,6 +66,6 @@ def train(model, inMatrix, targMatrix):
 	print("Compiling Model...")
 	model.compile(loss={'output': 'mse'}, optimizer='rmsprop')
 	print("Training Model...")
-	model.fit({'input': inMatrix, 'output': targMatrix}, batch_size=30, validation_split=0.15, callbacks=[EarlyStopping(monitor='val_loss', patience=3)], verbose=1)
+	model.fit({'input': inMatrix, 'output': targMatrix}, nb_epoch=10, validation_split=0.15, callbacks=[EarlyStopping(monitor='val_loss', patience=3)], verbose=1)
 
 	return model
