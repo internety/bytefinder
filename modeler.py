@@ -51,8 +51,9 @@ def build(inShape, targShape):
 
 	model = Graph()
 	model.add_input(name='input', input_shape=inShape[1:])
-	model.add_node(LSTM(output_dim=targShape[-1],  return_sequences=False), name='forward', input='input')
-	model.add_node(LSTM(output_dim=targShape[-1],  return_sequences=False, go_backwards=True), name='backward', input='input')
+	model.add_node(GaussianNoise(0.1), name='in_noise', input='input')
+	model.add_node(LSTM(output_dim=targShape[-1],  return_sequences=True), name='forward', input='in_noise')
+	model.add_node(LSTM(output_dim=targShape[-1],  return_sequences=True, go_backwards=True), name='backward', input='in_noise')
 	model.add_output(name='output', inputs=['forward', 'backward'], merge_mode='ave')
 
 	#model = Sequential()

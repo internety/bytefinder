@@ -13,19 +13,24 @@ import data
 
 def main():
 
+	if not os.path.exists('data'):
+		os.makedirs('data')
 
-	input, target, classes = data.sample('data')
+	if next(os.walk('data'))[1]:
+		input, target, classes = data.sample('data')
 
-	retrain = True
-	if retrain:
-		model = modeler.build(input.shape, target.shape)
-		modeler.train(model, input, target)
-		modeler.save(model, classes)
+		retrain = True
+		if retrain:
+			model = modeler.build(input.shape, target.shape)
+			modeler.train(model, input, target)
+			modeler.save(model, classes)
+		else:
+			model, classes = modeler.load(sorted(os.listdir('models'))[-1])
+	
+		output = modeler.run(model, input)
+		data.backtest(input, output)
 	else:
-		model, classes = modeler.load(sorted(os.listdir('models'))[-1])
-
-	output = modeler.run(model, input)
-	data.backtest(input, output)
+		print("""\nNo data found.\nPut subfolders of files by class, within the 'data' folder.""")
 
 if __name__ == "__main__":
 	main()
