@@ -62,7 +62,7 @@ def mat2str(smat):
 	return (np.where(smat)[-1]).tostring().replace('\x00','')
 
 # Sample a directory and all subdirectories
-def sample(dname, window=200, size=1000):
+def sample(dname, window=200, size=10000):
 
 	inList, targList = [], []
 
@@ -74,6 +74,7 @@ def sample(dname, window=200, size=1000):
 		classes.append(root.split('/')[-1])
 		for d in dirs:
 			ncat[root+'/'+d] = ncat[root]/len(dirs)
+	classes.remove(dname)
 
 	# For each sub-file/directory within dname
 	for root, dirs, files in os.walk(dname):
@@ -82,7 +83,7 @@ def sample(dname, window=200, size=1000):
 
 		if files:
 			print('Opening %s...' % root)
-			target = np.tile([1 if x in root.split('/')[1:] else 0 for x in classes], (1, window, 1))
+			target = np.tile([1 if x in root.split('/') else 0 for x in classes], (1, window, 1))
 	
 			total_size = sum([os.path.getsize(root+'/'+file) for file in files])
 			file_pdf = [os.path.getsize(root+'/'+file)/float(total_size) for file in files]
