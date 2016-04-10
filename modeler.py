@@ -9,8 +9,6 @@ import time, os
 import numpy as np
 np.random.seed(1)
 
-import tensorflow
-
 from keras.models import Graph, model_from_json
 from keras.layers.recurrent import LSTM
 from keras.callbacks import EarlyStopping

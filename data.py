@@ -4,9 +4,11 @@ from __future__ import print_function
 
 # Standard Libraries
 import random, os
+random.seed(1)
 
 # Third-party Libraries
 import numpy as np
+np.random.seed(1)
 
 ###############################################################################
 
@@ -62,7 +64,7 @@ def mat2str(smat):
 	return (np.where(smat)[-1]).tostring().replace('\x00','')
 
 # Sample a directory and all subdirectories
-def sample(dname, window=200, size=10000):
+def sample(dname, window=100, size=10000):
 
 	inList, targList = [], []
 
