@@ -62,36 +62,38 @@ def mat2str(smat):
 	return (np.where(smat)[-1]).tostring().replace('\x00','')
 
 # Sample a directory and all subdirectories
-def sample(dname):
-	ncat = 90		# Files per category
-	fsamps = 10 	# Samples per file
-	window = 200 	# Timesteps per sample
+def sample(dname, window=200, size=1000):
 
-	inList, targList, classes = [], [], []
-	classes = [root.split('/')[-1] for root, dirs, files in os.walk(dname) if '/' in root]
+	inList, targList = [], []
+
+	# Calculate number of samples per directory,
+	# based on number of siblings
+	classes = []
+	ncat = {dname:size}
+	for root, dirs, files in os.walk(dname):
+		classes.append(root.split('/')[-1])
+		for d in dirs:
+			ncat[root+'/'+d] = ncat[root]/len(dirs)
 
 	# For each sub-file/directory within dname
 	for root, dirs, files in os.walk(dname):
+		files = filter(lambda x: not x.startswith('.'), files)
+		files = filter(lambda x: os.path.getsize(root+'/'+x)>window, files)
+
+		if files:
 			print('Opening %s...' % root)
-			target = np.tile([1 if x in root.split('/')[1:] else 0 for x in classes], (window, 1))
+			target = np.tile([1 if x in root.split('/')[1:] else 0 for x in classes], (1, window, 1))
+	
+			total_size = sum([os.path.getsize(root+'/'+file) for file in files])
+			file_pdf = [os.path.getsize(root+'/'+file)/float(total_size) for file in files]
+			for _ in xrange(ncat[root]):
+				fpath = root+'/'+np.random.choice(files, p=file_pdf)
+				with open(fpath) as f:
+					f.seek(random.randint(0, os.path.getsize(fpath)-window))
+					inList.append(str2mat(f.read(window)))
+					targList.append(target)
 
-			# For file in each directory
-			random.shuffle(files)
-			for fname in files[:ncat]:
-				if not fname.startswith('.'):
-					try:
-						with open(root+'/'+fname) as f:
-							print("\tReading %s..." % fname[:40])
-							fstring = f.read()
-							if len(fstring) > window:
-								for _ in xrange(fsamps):
-									i = random.randint(0, len(fstring)-window)
-									inList.append(str2mat(fstring[i:i+window]))
-									targList.append(target)
-					except IOError:
-						print("\tCould not read %s..." % fname)
-
-	inMatrix, targMatrix = np.vstack(inList), np.array(targList)
+	inMatrix, targMatrix = np.vstack(inList), np.vstack(targList)
 
 	p = np.random.permutation(inMatrix.shape[0])
 	return (inMatrix[p], targMatrix[p], classes)
