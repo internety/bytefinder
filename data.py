@@ -64,7 +64,7 @@ def mat2str(smat):
 	return (np.where(smat)[-1]).tostring().replace('\x00','')
 
 # Sample a directory and all subdirectories
-def sample(dname, window=500, size=5000):
+def sample(dname, window=500, size=7500):
 
 	print('Sampling...')
 	ncat = {dname:size}  # Samples per category, based on directory tree
@@ -92,7 +92,6 @@ def sample(dname, window=500, size=5000):
 	nsamples = sum(x[1] for x in nfile)
 	inMatrix = np.empty((nsamples, window, 256), dtype=np.dtype('float32'))
 	targMatrix = np.empty((nsamples, window, len(classes)), dtype=np.dtype('float32'))
-	random.shuffle(nfile)
 	for file in nfile:
 		target = np.tile([1 if x in file[0].split('/') else 0 for x in classes], (1, window, 1))
 		for _ in xrange(file[1]):
@@ -104,4 +103,6 @@ def sample(dname, window=500, size=5000):
 				targMatrix[i] = target
 				i += 1
 
-	return (inMatrix, targMatrix, classes)
+	print('Shuffling...')
+	p = np.random.permutation(inMatrix.shape[0])
+ 	return (inMatrix[p], targMatrix[p], classes)
