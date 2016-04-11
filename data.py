@@ -64,7 +64,7 @@ def mat2str(smat):
 	return (np.where(smat)[-1]).tostring().replace('\x00','')
 
 # Sample a directory and all subdirectories
-def sample(dname, window=500, size=7500):
+def sample(dname, window=500, size=12000):
 
 	print('Sampling...')
 	ncat = {dname:size}  # Samples per category, based on directory tree
@@ -88,10 +88,13 @@ def sample(dname, window=500, size=7500):
 			if ntimes:
 				nfile.append((fpath, ntimes))
 
-	i = 0
 	nsamples = sum(x[1] for x in nfile)
 	inMatrix = np.empty((nsamples, window, 256), dtype=np.dtype('float32'))
 	targMatrix = np.empty((nsamples, window, len(classes)), dtype=np.dtype('float32'))
+	
+	i = 0
+	shuff = range(nsamples)
+	random.shuffle(shuff)
 	for file in nfile:
 		target = np.tile([1 if x in file[0].split('/') else 0 for x in classes], (1, window, 1))
 		for _ in xrange(file[1]):
@@ -99,10 +102,8 @@ def sample(dname, window=500, size=7500):
 				print('%0.2f%% Done' % (100.0*i/nsamples))
 			with open(file[0]) as f:
 				f.seek(random.randint(0, os.path.getsize(file[0])-window))
-				inMatrix[i] = str2mat(f.read(window))
-				targMatrix[i] = target
+				inMatrix[shuff[i]] = str2mat(f.read(window))
+				targMatrix[shuff[i]] = target
 				i += 1
 
-	print('Shuffling...')
-	p = np.random.permutation(inMatrix.shape[0])
- 	return (inMatrix[p], targMatrix[p], classes)
+ 	return (inMatrix, targMatrix, classes)
