@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 # Standard Libraries
-import random, os
+import os
 
 # Local Libraries
 import modeler

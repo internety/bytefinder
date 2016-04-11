@@ -9,14 +9,8 @@ import time, os
 import numpy as np
 np.random.seed(1)
 
-import tensorflow
-
-from keras.models import Sequential, Graph, model_from_json
-from keras.layers.core import Activation, Dropout, Dense
-from keras.layers.noise import GaussianNoise
+from keras.models import Graph, model_from_json
 from keras.layers.recurrent import LSTM
-from keras.layers.normalization import BatchNormalization
-from keras.layers.convolutional import Convolution1D
 from keras.callbacks import EarlyStopping
 
 ###############################################################################
@@ -30,7 +24,6 @@ def save(model, classes):
 	open('models/%s/meta.json' % t, 'w').write(model.to_json())
 	model.save_weights('models/%s/data.h5' % t, overwrite=True)
 	open('models/%s/classes.txt' % t, 'w').write(', '.join(classes))
-	return None
 
 # Load model
 def load(name):
@@ -45,19 +38,15 @@ def load(name):
 def run(model, inMatrix):
 	return model.predict({'input':inMatrix})['output']
 
+# Build model
 def build(inShape, targShape):
 
 	print("Building Model...")
-
 	model = Graph()
 	model.add_input(name='input', input_shape=inShape[1:])
 	model.add_node(LSTM(output_dim=targShape[-1],  return_sequences=True), name='forward', input='input')
 	model.add_node(LSTM(output_dim=targShape[-1],  return_sequences=True, go_backwards=True), name='backward', input='input')
 	model.add_output(name='output', inputs=['forward', 'backward'], merge_mode='ave')
-
-	#model = Sequential()
-	#model.add(LSTM(input_shape=inShape[1:], output_dim=targShape[-1], return_sequences=True))
-	
 	return model
 
 # Train model
@@ -67,5 +56,4 @@ def train(model, inMatrix, targMatrix):
 	model.compile(loss={'output':'mse'}, optimizer='rmsprop')
 	print("Training Model...")
 	model.fit({'input': inMatrix, 'output': targMatrix}, validation_split=0.15, callbacks=[EarlyStopping(monitor='val_loss', patience=3)], verbose=1)
-
 	return model
