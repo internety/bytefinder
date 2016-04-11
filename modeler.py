@@ -24,7 +24,6 @@ def save(model, classes):
 	open('models/%s/meta.json' % t, 'w').write(model.to_json())
 	model.save_weights('models/%s/data.h5' % t, overwrite=True)
 	open('models/%s/classes.txt' % t, 'w').write(', '.join(classes))
-	return None
 
 # Load model
 def load(name):

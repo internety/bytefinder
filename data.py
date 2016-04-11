@@ -64,39 +64,44 @@ def mat2str(smat):
 	return (np.where(smat)[-1]).tostring().replace('\x00','')
 
 # Sample a directory and all subdirectories
-def sample(dname, window=100, size=10000):
+def sample(dname, window=500, size=5000):
 
-	inList, targList = [], []
-
-	# Calculate number of samples per directory,
-	# based on number of siblings
-	classes = []
-	ncat = {dname:size}
+	print('Sampling...')
+	ncat = {dname:size}  # Samples per category, based on directory tree
+	nfile = []           # Samples per file, based on relative filesize
+	classes = []         # Named classes, based on folder names
 	for root, dirs, files in os.walk(dname):
-		classes.append(root.split('/')[-1])
 		for d in dirs:
 			ncat[root+'/'+d] = ncat[root]/len(dirs)
-	classes.remove(dname)
+		if '/' in root:
+			classes.append(root.split('/')[-1])
 
-	# For each sub-file/directory within dname
-	for root, dirs, files in os.walk(dname):
+		# Remove hidden and overly small files
 		files = filter(lambda x: not x.startswith('.'), files)
 		files = filter(lambda x: os.path.getsize(root+'/'+x)>window, files)
 
-		if files:
-			print('Opening %s...' % root)
-			target = np.tile([1 if x in root.split('/') else 0 for x in classes], (1, window, 1))
-	
-			total_size = sum([os.path.getsize(root+'/'+file) for file in files])
-			file_pdf = [os.path.getsize(root+'/'+file)/float(total_size) for file in files]
-			for _ in xrange(ncat[root]):
-				fpath = root+'/'+np.random.choice(files, p=file_pdf)
-				with open(fpath) as f:
-					f.seek(random.randint(0, os.path.getsize(fpath)-window))
-					inList.append(str2mat(f.read(window)))
-					targList.append(target)
+		# Calculate size of category
+		catsize = sum([os.path.getsize(root+'/'+file) for file in files])
+		for file in files:
+			fpath = root+'/'+file
+			ntimes = int(ncat[root]*os.path.getsize(fpath)/float(catsize))+1
+			if ntimes:
+				nfile.append((fpath, ntimes))
 
-	inMatrix, targMatrix = np.vstack(inList), np.vstack(targList)
+	i = 0
+	nsamples = sum(x[1] for x in nfile)
+	inMatrix = np.empty((nsamples, window, 256), dtype=np.dtype('float32'))
+	targMatrix = np.empty((nsamples, window, len(classes)), dtype=np.dtype('float32'))
+	random.shuffle(nfile)
+	for file in nfile:
+		target = np.tile([1 if x in file[0].split('/') else 0 for x in classes], (1, window, 1))
+		for _ in xrange(file[1]):
+			if not i % 1000:
+				print('%0.2f%% Done' % (100.0*i/nsamples))
+			with open(file[0]) as f:
+				f.seek(random.randint(0, os.path.getsize(file[0])-window))
+				inMatrix[i] = str2mat(f.read(window))
+				targMatrix[i] = target
+				i += 1
 
-	p = np.random.permutation(inMatrix.shape[0])
-	return (inMatrix[p], targMatrix[p], classes)
+	return (inMatrix, targMatrix, classes)
