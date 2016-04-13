@@ -36,6 +36,8 @@ def load(name):
 
 # Use model
 def run(model, inMatrix):
+
+	print("Running Model...")
 	return model.predict({'input':inMatrix})['output']
 
 # Build model

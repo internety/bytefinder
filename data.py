@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 # Standard Libraries
-import random, os
+import random, os, re
 random.seed(1)
 
 # Third-party Libraries
@@ -63,8 +63,19 @@ def str2mat(s):
 def mat2str(smat):
 	return (np.where(smat)[-1]).tostring().replace('\x00','')
 
+def clean(dname):
+
+	print('Cleaning %s...' % dname)
+	for root, dirs, files in os.walk(dname):
+		for file in files:
+			fname = root+'/'+file
+			with open(fname, 'r') as f:
+				text = re.sub('\s+', ' ', f.read())
+			with open(fname, 'w') as f:
+				f.write(text)
+
 # Sample a directory and all subdirectories
-def sample(dname, window=500, size=12000):
+def sample(dname, window=400, size=12000):
 
 	print('Sampling...')
 	ncat = {dname:size}  # Samples per category, based on directory tree
@@ -84,7 +95,7 @@ def sample(dname, window=500, size=12000):
 		catsize = sum([os.path.getsize(root+'/'+file) for file in files])
 		for file in files:
 			fpath = root+'/'+file
-			ntimes = int(ncat[root]*os.path.getsize(fpath)/float(catsize))+1
+			ntimes = int(round(ncat[root]*os.path.getsize(fpath)/float(catsize)))
 			if ntimes:
 				nfile.append((fpath, ntimes))
 
