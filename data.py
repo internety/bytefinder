@@ -14,7 +14,6 @@ np.random.seed(1)
 
 def backtest(classes, input, output):
 	for sequence in xrange(input.shape[0]):
-		print(output[sequence].shape)
 		name = random.randint(100000,999999)
 		cats = '\n'.join(["<input type='radio' name='cat_select' onclick='myFunction()'>"+x for x in classes])
 		doc = """<!doctype html>
@@ -65,7 +64,7 @@ def clean(dname):
 				f.write(text)
 
 # Sample a directory and all subdirectories
-def sample(dname, window=500, size=4000):
+def sample(dname, window=400, size=16000):
 
 	print('Sampling...')
 	ncat = {dname:size}  # Samples per category, based on directory tree
@@ -94,6 +93,8 @@ def sample(dname, window=500, size=4000):
 	targMatrix = np.empty((nsamples, window, len(classes)), dtype=np.dtype('float32'))
 	
 	i = 0
+	shuff = range(nsamples)
+	random.shuffle(shuff)
 	for file in nfile:
 		target = np.tile([1 if x in file[0].split('/') else 0 for x in classes], (1, window, 1))
 		for _ in xrange(file[1]):
@@ -101,8 +102,8 @@ def sample(dname, window=500, size=4000):
 				print('%0.2f%% Done' % (100.0*i/nsamples))
 			with open(file[0]) as f:
 				f.seek(random.randint(0, os.path.getsize(file[0])-window))
-				inMatrix[i] = str2mat(f.read(window))
-				targMatrix[i] = target
+				inMatrix[shuff[i]] = str2mat(f.read(window))
+				targMatrix[shuff[i]] = target
 				i += 1
 
  	return (inMatrix, targMatrix, classes)
