@@ -12,45 +12,35 @@ np.random.seed(1)
 
 ###############################################################################
 
-class colors:
-	normal = '\033[0m'
-	fg_r = '\033[91m'
-	fg_g = '\033[92m'
-	fg_y = '\033[93m'
-	fg_b = '\033[94m'
-	fg_m = '\033[95m'
-	fg_c = '\033[96m'
-	fg_w = '\033[97m'
-	bg_k = '\033[100m'
-	bg_r = '\033[101m'
-	bg_g = '\033[102m'
-	bg_y = '\033[103m'
-	bg_b = '\033[104m'
-	bg_m = '\033[105m'
-	bg_c = '\033[106m'
-
 def backtest(classes, input, output):
-
-	# Print classification labels
-	cat_colors = [colors.fg_r, colors.fg_g, colors.fg_y, colors.fg_b, colors.fg_m, colors.fg_c, colors.fg_w]
-	for i in xrange(len(classes)):
-		print(cat_colors[i] + classes[i] + colors.normal, end=' ')
-	print()
-
-	# For each sequence in input
 	for sequence in xrange(input.shape[0]):
-		
-		print('-'*40)
-		fstring = mat2str(input[sequence])
-		fcat = output[sequence]
-
-		# For each timestep in sequence
-		for timestep in xrange(len(fstring)):
-			char = fstring[timestep]
-			cat = fcat[timestep]
-			print(cat_colors[np.argmax(cat)] + char + colors.normal, end='')
-		print()
-	return
+		print(output[sequence].shape)
+		name = random.randint(100000,999999)
+		cats = '\n'.join(["<input type='radio' name='cat_select' onclick='myFunction()'>"+x for x in classes])
+		doc = """<!doctype html>
+		<html>
+		<head>
+		<title>
+		</title>
+		</head>
+		<body>
+		<form>
+		%s
+		</form>
+		<script type="text/javascript" src="%s_meta.js">
+		</script>
+		<script language="javascript" type="text/javascript">
+		function myFunction(){var form=document.forms[0];for(i=0;i<form.length;i++){if(form[i].checked){var cat=i;}}var x=document.getElementById("text");var text=x.textContent||x.innerText;var newText='';for(var a=0;a<text.length;a++){var letter=text.charAt(a);if(a>
+		0 && a<=colors.length){color=Math.round(Math.min(Math.max(colors[a-1][cat],0.0),1.0)*255);hex=color.toString(16).toUpperCase().repeat(3);}else{hex='000000'}newText+=letter.fontcolor(hex);}x.innerHTML=newText;}</script>
+		<div id="text">
+		%s</div>
+		</body>
+		</html>""" % (cats, name, mat2str(input[sequence]))
+		form = '['+','.join(['%0.2f' for x in xrange(output.shape[-1])])+'],'
+		last_elem = '['+','.join(['0.0' for x in xrange(output.shape[-1])])+']'
+		np.savetxt('results/%s_meta.js' % name, output[sequence],fmt=form,delimiter=',',header='var colors=[',footer=last_elem+']',comments='')
+		with open('results/%s.html' % name, 'w+') as f:
+			f.write(doc)
 
 # Given a file string 's',
 # sample and output a numpy matrix with shape (1, len(s), 256)
@@ -75,7 +65,7 @@ def clean(dname):
 				f.write(text)
 
 # Sample a directory and all subdirectories
-def sample(dname, window=400, size=12000):
+def sample(dname, window=500, size=4000):
 
 	print('Sampling...')
 	ncat = {dname:size}  # Samples per category, based on directory tree
@@ -104,8 +94,6 @@ def sample(dname, window=400, size=12000):
 	targMatrix = np.empty((nsamples, window, len(classes)), dtype=np.dtype('float32'))
 	
 	i = 0
-	shuff = range(nsamples)
-	random.shuffle(shuff)
 	for file in nfile:
 		target = np.tile([1 if x in file[0].split('/') else 0 for x in classes], (1, window, 1))
 		for _ in xrange(file[1]):
@@ -113,8 +101,8 @@ def sample(dname, window=400, size=12000):
 				print('%0.2f%% Done' % (100.0*i/nsamples))
 			with open(file[0]) as f:
 				f.seek(random.randint(0, os.path.getsize(file[0])-window))
-				inMatrix[shuff[i]] = str2mat(f.read(window))
-				targMatrix[shuff[i]] = target
+				inMatrix[i] = str2mat(f.read(window))
+				targMatrix[i] = target
 				i += 1
 
  	return (inMatrix, targMatrix, classes)

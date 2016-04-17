@@ -9,7 +9,8 @@ import time, os
 import numpy as np
 np.random.seed(1)
 
-from keras.models import Graph, model_from_json
+from keras.models import Model, model_from_json
+from keras.layers import Input, TimeDistributed, Dense
 from keras.layers.recurrent import LSTM
 from keras.callbacks import EarlyStopping
 
@@ -44,18 +45,17 @@ def run(model, inMatrix):
 def build(inShape, targShape):
 
 	print("Building Model...")
-	model = Graph()
-	model.add_input(name='input', input_shape=inShape[1:])
-	model.add_node(LSTM(output_dim=targShape[-1],  return_sequences=True), name='forward', input='input')
-	model.add_node(LSTM(output_dim=targShape[-1],  return_sequences=True, go_backwards=True), name='backward', input='input')
-	model.add_output(name='output', inputs=['forward', 'backward'], merge_mode='ave')
-	return model
+	input = Input(inShape[1:])
+	forward = LSTM(output_dim=targShape[-1], return_sequences=True)(input)
+	backward = LSTM(output_dim=targShape[-1], return_sequences=True, go_backwards=True)(input)
+	output = TimeDistributed(Dense(targShape[-1], activation='softmax'))(forward, backward)
+	return Model(input=input, output=output)
 
 # Train model
 def train(model, inMatrix, targMatrix):
 
 	print("Compiling Model...")
-	model.compile(loss={'output':'mse'}, optimizer='rmsprop')
+	model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
 	print("Training Model...")
-	model.fit({'input': inMatrix, 'output': targMatrix}, validation_split=0.15, callbacks=[EarlyStopping(monitor='val_loss', patience=3)], verbose=1)
+	model.fit(inMatrix, targMatrix, validation_split=0.15, callbacks=[EarlyStopping(monitor='val_loss', patience=3)])
 	return model

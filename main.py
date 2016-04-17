@@ -11,14 +11,6 @@ import data
 
 ###############################################################################
 
-def chat(model, classes, timesteps=400):
-	s = ' '
-	while s:
-		s = ("{:<"+str(timesteps)+"}").format(raw_input('Enter text: '))[:timesteps]
-		input = data.str2mat(s)
-		output = modeler.run(model, input)
-		data.backtest(classes, input, output)
-
 def main():
 
 	if not os.path.exists('data'):
@@ -27,17 +19,16 @@ def main():
 	if next(os.walk('data'))[1]:
 		input, target, classes = data.sample('data')
 
-		retrain = False
+		retrain = True
 		if retrain:
 			model = modeler.build(input.shape, target.shape)
 			modeler.train(model, input, target)
 			modeler.save(model, classes)
 		else:
 			model, classes = modeler.load(sorted(os.listdir('models'))[-1])
-	
-		#output = modeler.run(model, input)
-		#data.backtest(classes, input, output)
-		chat(model, classes)
+
+		output = modeler.run(model, input)
+		data.backtest(classes, input, output)
 	else:
 		print("""\nNo data found.\nPut subfolders of files by class, within the 'data' folder.""")
 
