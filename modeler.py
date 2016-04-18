@@ -56,7 +56,7 @@ def build(inShape, targShape):
 def train(model, inMatrix, targMatrix):
 
 	print("Compiling Model...")
-	model.compile(optimizer='rmsprop', loss='mse', metrics=['accuracy'])
+	model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
 	print("Training Model...")
 	model.fit(inMatrix, targMatrix, nb_epoch=100, validation_split=0.15, callbacks=[EarlyStopping(monitor='val_loss', patience=3)])
 	return model
