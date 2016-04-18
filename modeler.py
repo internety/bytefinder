@@ -39,8 +39,27 @@ def load(name):
 # Use model
 def run(model, inMatrix):
 
+	window = 400
+	classes = 2
+
 	print("Running Model...")
-	return model.predict(inMatrix)
+	indices = range(0, inMatrix.shape[1], window//2)
+	slices = [[x[y:y+window] for y in indices] for x in inMatrix]
+	outMatrix = np.empty((inMatrix.shape[0], inMatrix.shape[1], classes), dtype=np.dtype('float32'))
+	for sample in xrange(len(slices)):
+		for piece in xrange(len(slices[sample])):
+			if not piece%100:
+				print("%0.2f%% Done" % (100.0*piece/len(slices[sample])))
+			slices[sample][piece] = np.pad(slices[sample][piece], ((0,window-slices[sample][piece].shape[0]),(0,0)), mode='constant')
+			prediction = model.predict(np.expand_dims(slices[sample][piece],axis=0))[0]
+			if piece > 0 and piece < len(slices[sample])-1:
+				prediction[:window//2] = np.mean(np.array([prediction[:window//2],outMatrix[sample,indices[piece]:indices[piece]+window//2]]),axis=0)
+				if piece==len(slices[sample])-1:
+					prediction = prediction[:outMatrix.shape[1]-indices[piece]]
+			if outMatrix.shape[1]-indices[piece] < window:
+				prediction = prediction[:outMatrix.shape[1]-indices[piece]]
+			outMatrix[sample,indices[piece]:indices[piece]+window] = prediction
+	return outMatrix
 
 # Build model
 def build(inShape, targShape):
