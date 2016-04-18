@@ -15,49 +15,25 @@ np.random.seed(1)
 def backtest(classes, input, output):
 	for sequence in xrange(input.shape[0]):
 		name = random.randint(100000,999999)
-		cats = '<input type="radio" name="cat_select" onclick="myFunction()">\n'.join([x for x in classes])
+		cats = '<input type="radio" name="cat_select" onclick="highlight();">\n'.join([x for x in classes])
 		doc = """
 		<!doctype html>
 		<html>
 			<head>
-			<title></title>
-		</head>
-		<body onload="myFunction()">
-			<form>
-			<input type="radio" name="cat_select" onclick="myFunction()" checked>
-			%s
-			</form>
-			<script type="text/javascript" src="%s_meta.js">
-			</script>
-			<script language="javascript" type="text/javascript">
-				function myFunction() {
-					var form=document.forms[0];
-					for (i=0;i<form.length;i++) {
-						if (form[i].checked) {
-							var cat=i;
-						}
-					}
-					var x=document.getElementById("text");
-					var text=x.textContent||x.innerText;
-					var newText='';
-					for(var a=0; a<text.length; a++) {
-						var letter = text.charAt(a);
-						if (a > 0 && a<=colors.length) {
-							highlight = Math.round(Math.min(Math.max(colors[a-1][cat],0.0),1.0));
-						}
-						else {
-							highlight = 0.0
-						}
-						newText += '<span style="background-color:rgba(255,255,0,' + highlight + ')">' + letter + '</span>';
-					}
-					x.innerHTML = newText;
-				}
-			</script>
-			<div id="text">
-			%s
-			</div>
-		</body>
-		</html>""" % (cats, name, mat2str(input[sequence]))
+				<title></title>
+				<script src="../textfill.js"></script>
+				<script src="%s_meta.js"></script>
+			</head>
+			<body onload="highlight();">
+				<form>
+				<input type="radio" name="cat_select" onclick="highlight();" checked>
+				%s
+				</form>
+				<div id="text">
+				%s
+				</div>
+			</body>
+		</html>""" % (name, cats, mat2str(input[sequence]))
 		form = '['+','.join(['%0.2f' for x in xrange(output.shape[-1])])+'],'
 		last_elem = '['+','.join(['0.0' for x in xrange(output.shape[-1])])+']'
 		np.savetxt('results/%s_meta.js' % name, output[sequence],fmt=form,delimiter=',',header='var colors=[',footer=last_elem+']',comments='')

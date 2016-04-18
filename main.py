@@ -19,7 +19,7 @@ def main():
 	if next(os.walk('data'))[1]:
 		input, target, classes = data.sample('data')
 
-		retrain = True
+		retrain = False
 		if retrain:
 			model = modeler.build(input.shape, target.shape)
 			modeler.train(model, input, target)
