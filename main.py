@@ -17,18 +17,18 @@ def main():
 		os.makedirs('data')
 
 	if next(os.walk('data'))[1]:
-		input, target, classes = data.sample('data')
-
-		retrain = True
+		retrain = False
 		if retrain:
+			input, target, classes = data.sample('data')
 			model = modeler.build(input.shape, target.shape)
 			modeler.train(model, input, target)
 			modeler.save(model, classes)
 		else:
 			model, classes = modeler.load(sorted(os.listdir('models'))[-1])
-	
-		output = modeler.run(model, input)
-		data.backtest(classes, input, output)
+			with open("data/harry-potter/Sorcerer's Stone.txt") as f:
+				input = data.str2mat(f.read())
+			output = modeler.run(model, input)
+			data.backtest(classes, input, output)
 	else:
 		print("""\nNo data found.\nPut subfolders of files by class, within the 'data' folder.""")
 
