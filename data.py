@@ -65,7 +65,7 @@ def clean(dname):
 # Sample a directory and all subdirectories
 def sample(dname, window=400, size=100):
 
-	print('Sampling...')
+	print('Sampling...' )
 	ncat = {dname:size}  # Samples per category, based on directory tree
 	nfile = []           # Samples per file, based on relative filesize
 	classes = []         # Named classes, based on folder names
